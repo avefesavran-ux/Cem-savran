@@ -998,3 +998,967 @@ export default function App() {
     </>
   );
 }
+  return p;
+}
+
+function Counter({ end, duration = 2000, suffix = "", visible }) {
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    if (!visible) return;
+    let s = 0;
+    const step = (ts) => { if (!s) s = ts; const p = Math.min((ts - s) / duration, 1); setVal(Math.floor(p * end)); if (p < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  }, [visible, end, duration]);
+  return <span>{val}{suffix}</span>;
+}
+
+function Typewriter({ text, speed = 30, visible }) {
+  const [d, setD] = useState("");
+  useEffect(() => {
+    if (!visible) return;
+    let i = 0;
+    const iv = setInterval(() => { i++; setD(text.slice(0, i)); if (i >= text.length) clearInterval(iv); }, speed);
+    return () => clearInterval(iv);
+  }, [visible, text, speed]);
+  return <span>{d}<span style={{ opacity: d.length < text.length ? 1 : 0, color: GOLD }}>▎</span></span>;
+}
+
+function MagButton({ children, style, onClick }) {
+  const ref = useRef(null);
+  const [o, setO] = useState({ x: 0, y: 0 });
+  return (
+    <button ref={ref} onClick={onClick}
+      onMouseMove={e => { const r = ref.current.getBoundingClientRect(); setO({ x: (e.clientX - r.left - r.width/2) * 0.18, y: (e.clientY - r.top - r.height/2) * 0.18 }); }}
+      onMouseLeave={() => setO({ x: 0, y: 0 })}
+      style={{ ...style, transform: `translate(${o.x}px,${o.y}px)`, transition: "transform 0.4s cubic-bezier(0.23,1,0.32,1), background 0.4s, border-color 0.4s, color 0.4s" }}>
+      {children}
+    </button>
+  );
+}
+
+function LineDraw({ width = 80, visible, delay = 0, color = B }) {
+  return <div style={{ width: visible ? width : 0, height: 2, background: color, transition: `width 1.4s cubic-bezier(0.16,1,0.3,1) ${delay}s` }} />;
+}
+
+function Fleuron({ size = 14, color = GOLD }) {
+  return <span style={{ display: "inline-block", color, fontSize: size, fontFamily: F, lineHeight: 1, opacity: 0.6 }}>❦</span>;
+}
+
+function Signature({ visible }) {
+  return (
+    <div style={{ position: "relative", display: "inline-block", marginTop: 16, marginBottom: 4, overflow: "hidden", width: visible ? 280 : 0, transition: "width 2.4s cubic-bezier(0.65,0,0.35,1)" }}>
+      <span style={{ fontFamily: FS, fontSize: 56, color: GOLD_LIGHT, whiteSpace: "nowrap", display: "inline-block", lineHeight: 1.2, textShadow: `0 1px 0 ${GOLD}30`, letterSpacing: 1 }}>Cem Savran</span>
+    </div>
+  );
+}
+
+function ScrollProgress() {
+  const p = useScrollProgress();
+  return <div style={{ position: "fixed", top: 0, left: 0, height: 2, width: `${p * 100}%`, background: `linear-gradient(to right, ${B}, ${GOLD})`, zIndex: 1001, transition: "width 0.1s" }} />;
+}
+
+function TexturedBg() {
+  return (
+    <>
+      <svg style={{ position: "fixed", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 1, opacity: 0.18, mixBlendMode: "overlay" }}>
+        <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" /><feColorMatrix values="0 0 0 0 0.5  0 0 0 0 0.45  0 0 0 0 0.4  0 0 0 0.12 0" /></filter>
+        <rect width="100%" height="100%" filter="url(#noise)" />
+      </svg>
+      <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 1, background: `radial-gradient(ellipse at center, transparent 0%, transparent 60%, rgba(0,0,0,0.4) 100%)` }} />
+    </>
+  );
+}
+
+/* ─── DATA (Ecinni first, newest → oldest) ─── */
+const books = [
+  { id: "ecinni", title: "Ecinni", type: "Roman", year: "2026", letter: "E", number: "IV",
+    tagline: "İçimizdeki sağduyunun mu, yoksa vicdanın mı sesi?",
+    description: "Ecinni, insanlığın ortak belleğinin uzayın derinliklerinden gelen kozmik bir seste yankılanışının anlatısı. Cesim, Cevahir adını verdiği iç sesinin yoldaşlığıyla İstanbul sokaklarını arşınlıyor; hijyenik klinik odasındaki derin sessizlikten Gezi Parkı'nın biber gazı kokan hengâmesine uzanan bir çizgide ilerliyor. Eylemci bir gazeteci olan Elif'le tanışır ve onunla birlikte kendi zihinsel karmaşasına toplumsal kalkışmada şifa arar. Cevahir, Naguma adlı bir uydu gezegenden gelip bin yıl boyunca atalarının bedenlerinde konaklamış bedensiz bir bilge mi — yoksa Cesim'in zihninin yarattığı bir imge mi?",
+    themes: ["Bilimkurgu", "Tasavvuf", "İç Ses", "İstanbul", "Kozmik Bellek", "Toplumsal Kalkışma"],
+    quote: "Sarsıcı macerasında ona eşlik etmek heyecan verici…",
+    quoteAttr: "Ahmet Ziya Ünalan",
+    detail: { icon: "✦", accent: "İstanbul · Naguma · Gezi Parkı", atmosphere: "Klinik odasının derin sessizliği, biber gazı kokan sokaklar, bin yıllık bir kozmik ses ve aşkın izini süren bedensiz bir bilge..." },
+    isCosmic: true
+  },
+  { id: "gunduz-dusleri", title: "Gündüz Düşleri", type: "Roman", year: "2025", letter: "G", number: "III",
+    tagline: "Şairce bakmanın ve şairce yorumlamanın özgün anlatısı",
+    description: "Gündüz Düşleri, 90'lı yılların karanlık Ankara'sında bir şiir militanının yaşantısından kesitler sunan, neredeyse her cümlesi şiir tadında bir roman. Eşyanın dile geldiği, nesnelerin konuştuğu büyülü gerçekçi bir anlatı. Uğur Mumcu suikastı, Sivas Katliamı gibi toplumsal travmaların gölgesinde, bir şairin sanatsal ve ideolojik varoluş mücadelesi tüm çıplaklığıyla gözler önüne seriliyor. Canip'in dünyasında imge toplayıcılığı ve metafor avcılığı, yaşamın kendisi haline geliyor.",
+    themes: ["Edebiyat Dünyası", "Büyülü Gerçekçilik", "Toplumsal Hafıza", "Şiirin Gücü"],
+    quote: "Nesneler her yerden 'beni de yaz' diye bağrışıyor.",
+    detail: { icon: "☽", accent: "Ankara · 1990'lar · Promete Dergisi", atmosphere: "Bir matbaa mürekkebi kokusu, bir PTT çukuru, konuşan nesneler ve şiir militanının karanlıkta parlayan kalemi..." }
+  },
+  { id: "av", title: "Av", type: "Roman", year: "2024", letter: "A", number: "II",
+    tagline: "Yeraltından öteki notlar — avken avcı, avcıyken av",
+    description: "Cem Savran'ın ilk romanı Av, Antalya falezlerinin gölgesinde geçen, katmanlı bir anlatı yapısı içinde sarsıcı bir duygusal derinlik sunuyor. Çerçeve anlatı tekniğini ustalıkla kullanan yazar, romanı iç içe geçmiş üç zaman dilimiyle kurgulamış. 12 Eylül darbesinin gölgesinde bir gencin varoluş mücadelesi, doğayla kurulan derin bağ ve av-avcı döngüsünün metaforik zenginliğiyle örülüyor. Dostoyevski'nin Yeraltından Notlar'ına selam gönderen roman, şiirsel betimlemelerin yapısal unsurlara dönüştüğü özgün bir eser.",
+    themes: ["Varoluş", "Doğa", "Direniş", "Tarihsel Bellek"],
+    quote: "İnsan avken avcıya, avcıyken ava dönüşebiliyor.",
+    detail: { icon: "◈", accent: "Antalya · Falezler · Deniz", atmosphere: "Tuzlu rüzgâr, falez kayalıklarının altındaki mağara, bir sahafın elinden düşen ajanda ve zamansız bir günlük..." }
+  },
+  { id: "metal-kelebek", title: "Metal Kelebek", type: "Şiir", year: "2024", letter: "M", number: "I",
+    tagline: "Otuz üç şiirde çelikten kanatlarla toplumsal tanıklık",
+    description: "Metal Kelebek, Cem Savran'ın olgunluk döneminin en somut şiir çalışması. Otuz üç şiiri bir araya getiren kitap, toplumcu bir damarın lirik izdüşümü olarak okunabilir. Modern çağın ruhsuzlaşan kentlerine yöneltilen eleştirel tavır, kitabın temel direklerinden birini oluşturuyor. Dizeler, başladığı yerle bittiği menzili iyi bilen bir berraklığa sahip.",
+    themes: ["Toplumsal Eleştiri", "Kent", "Modernite", "Direniş"],
+    quote: "Bencil hayatların ve rutin duyarsızlıkların karşısına şiirin diri belleğiyle dikilmek.",
+    detail: { icon: "❋", accent: "33 Şiir · Toplumcu Lirizm", atmosphere: "Çelikten kanatlar, ruhsuzlaşan kent dokusu, Baudelaire'e selam ve şiirin diri belleği..." }
+  }
+];
+
+const blogPosts = [
+  { id: 1, title: "Şiirin Karanlık Suları", date: "2026", excerpt: "Şiir, görünenin ardındaki görünmeyeni aramaktır. Her dizede bir kapı aralanır, her imgede bir dünya kurulur...", category: "Şiir Üzerine" },
+  { id: 2, title: "Romanın Olanakları", date: "2026", excerpt: "Roman için, 'Tarihi yazılmamış kişilerin tarihidir' diyen Michel Butor'a katılmamak mümkün mü?", category: "Edebiyat" },
+  { id: 3, title: "Antalya'yı Yazınsal Bir Mekâna Dönüştürmek", date: "2025", excerpt: "Her şeyin yüzeysel, gelgeç, kısacası turistik olması korkunç bir şey.", category: "Mekân ve Edebiyat" },
+  { id: 4, title: "İmge Toplayıcılığı ve Metafor Avcılığı", date: "2025", excerpt: "Şairler dalgın olurlar… Onlar, bilinen dünyadan daha zengin zihinsel bir dünyada yaşarlar.", category: "Poetika" },
+];
+
+const bio = {
+  education: "Ankara Üniversitesi Dil ve Tarih-Coğrafya Fakültesi, Rus Dili ve Edebiyatı",
+  paragraphs: [
+    "Cem Savran, 12 Eylül öncesinin koyu karanlık gündüzlerini ilk gençliğinin masumiyetiyle karşılamış şairlerden. Siyasal cinayetler yelpazesinin tam sınırında, hayatı poetik bir duyarlılıkla savunan bir kuşağın sesi.",
+    "Ankara'da bulunduğu yıllarda nüfus memurluğu, dizgicilik, editörlük ve yayıncılık yaptı. 2000 yılında Antalya'ya taşındı; burada sahaflık ve antikacılık yaptı.",
+    "Ahmet Erhan ve Hakan Şen'le 1989–1990 yılları arasında Silgi dergisini çıkardı. 1992–1994 yılları arasında Promete dergisini çıkardı ve aynı adı taşıyan bir yayınevi kurdu.",
+    "Yazıları, şiirleri ve çevirileri Yeni Biçem, İzlek, Şiir-lik, Karşı, Edebiyat ve Eleştiri, Kavram ve Kargaşa, Rüzgâr, Bireylikler, Eşik, Kül, Varlık, Sincan İstasyonu dergilerinde yayınlandı.",
+    "Aleksandr Puşkin ve Sergey Yesenin'den şiirler çevirdi. Rus edebiyatının derinliklerinden Türkçeye köprüler kurdu."
+  ],
+  magazines: ["Silgi (1989–1990)", "Promete (1992–1994)", "Sanat (1997–1998)"],
+  translations: ["Aleksandr Puşkin", "Sergey Yesenin"]
+};
+
+const timeline = [
+  { y: "1965", e: "Doğum", s: "27 Mart" },
+  { y: "1989", e: "Silgi Dergisi", s: "Ahmet Erhan & Hakan Şen ile" },
+  { y: "1992", e: "Promete", s: "Dergi ve yayınevi" },
+  { y: "1997", e: "Sanat Dergisi", s: "Ankara" },
+  { y: "2000", e: "Antalya", s: "Sahaflık & antikacılık" },
+  { y: "2024", e: "Av · Metal Kelebek", s: "İlk roman & şiir" },
+  { y: "2025", e: "Gündüz Düşleri", s: "İkinci roman" },
+  { y: "2026", e: "Ecinni", s: "Yeni roman" },
+];
+
+const heroQuotes = [
+  "Metaforlar, dışarıdan iliştirilmiş birer süs değil, içerikle bütünleşmiş çağrışım zenginlikleridir.",
+  "Şairler dalgın olurlar… Onlar, bilinen dünyadan daha zengin zihinsel bir dünyada yaşarlar.",
+  "Nesneler her yerden 'beni de yaz' diye bağrışıyor."
+];
+
+/* ═══════ NAVBAR ═══════ */
+function Navbar({ currentPage, setCurrentPage }) {
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  useEffect(() => { const h = () => setScrolled(window.scrollY > 30); window.addEventListener("scroll", h); return () => window.removeEventListener("scroll", h); }, []);
+  const links = [{ id: "home", label: "Ana Sayfa" }, { id: "about", label: "Hakkında" }, { id: "books", label: "Eserler" }, { id: "blog", label: "Blog" }, { id: "contact", label: "İletişim" }];
+  const go = (id) => { setCurrentPage(id); setMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  return (
+    <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, background: scrolled ? "rgba(5,5,5,0.94)" : "transparent", backdropFilter: scrolled ? "blur(14px)" : "none", borderBottom: scrolled ? `1px solid ${B}22` : "1px solid transparent", transition: "all 0.5s", padding: "0 32px" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 76 }}>
+        <div onClick={() => go("home")} style={{ cursor: "pointer" }}>
+          <span className="nav-logo">CEM SAVRAN</span>
+        </div>
+        <div className="desktop-nav" style={{ display: "flex", gap: 38 }}>
+          {links.map(l => (<button key={l.id} onClick={() => go(l.id)} className="nav-link" data-active={currentPage === l.id ? "true" : "false"}>{l.label}</button>))}
+        </div>
+        <button className="mobile-menu-btn" onClick={() => setMenuOpen(!menuOpen)} style={{ display: "none", background: "none", border: "none", cursor: "pointer", padding: 8, flexDirection: "column", gap: 5 }}>
+          <span style={{ display: "block", width: 22, height: 1.5, background: CR, transition: "0.3s", transform: menuOpen ? "rotate(45deg) translate(4px,4px)" : "none" }} />
+          <span style={{ display: "block", width: 22, height: 1.5, background: CR, transition: "0.3s", opacity: menuOpen ? 0 : 1 }} />
+          <span style={{ display: "block", width: 22, height: 1.5, background: CR, transition: "0.3s", transform: menuOpen ? "rotate(-45deg) translate(4px,-4px)" : "none" }} />
+        </button>
+      </div>
+      {menuOpen && (
+        <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "rgba(5,5,5,0.97)", backdropFilter: "blur(14px)", borderBottom: `1px solid ${B}22`, padding: "24px 32px", display: "flex", flexDirection: "column", gap: 22 }}>
+          {links.map(l => (<button key={l.id} onClick={() => go(l.id)} className="nav-link-mobile" data-active={currentPage === l.id ? "true" : "false"}>{l.label}</button>))}
+        </div>
+      )}
+    </nav>
+  );
+}
+
+/* ═══════ HERO ═══════ */
+function HeroSection({ setCurrentPage }) {
+  const [vis, setVis] = useState(false);
+  const [mp, setMp] = useState({ x: 0, y: 0 });
+  const [qi, setQi] = useState(0);
+  const [sigDraw, setSigDraw] = useState(false);
+  useEffect(() => { setTimeout(() => setVis(true), 200); setTimeout(() => setSigDraw(true), 2200); }, []);
+  useEffect(() => { const iv = setInterval(() => setQi(p => (p + 1) % heroQuotes.length), 7000); return () => clearInterval(iv); }, []);
+  const hm = useCallback((e) => { setMp({ x: (e.clientX / window.innerWidth - 0.5) * 18, y: (e.clientY / window.innerHeight - 0.5) * 10 }); }, []);
+  return (
+    <section onMouseMove={hm} style={{ minHeight: "100vh", display: "flex", alignItems: "center", position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", inset: 0, background: `radial-gradient(ellipse at 25% 60%, ${B}1f 0%, transparent 60%)`, transform: `translate(${mp.x*0.4}px,${mp.y*0.4}px)`, transition: "transform 1s ease-out", zIndex: 2 }} />
+      <div style={{ position: "absolute", inset: 0, background: `radial-gradient(ellipse at 80% 30%, ${BD}25 0%, transparent 50%)`, transform: `translate(${mp.x*-0.3}px,${mp.y*-0.3}px)`, transition: "transform 1s ease-out", zIndex: 2 }} />
+      <div style={{ position: "absolute", left: "12%", top: 0, height: vis ? "100%" : "0%", width: 1, background: `linear-gradient(to bottom, transparent, ${B}25, transparent)`, transition: "height 2.5s cubic-bezier(0.16,1,0.3,1) 0.3s", zIndex: 2 }} />
+      <div style={{ position: "absolute", right: "-3%", bottom: "-8%", fontFamily: F, fontSize: "clamp(220px, 42vw, 540px)", color: `${B}07`, fontStyle: "italic", lineHeight: 1, userSelect: "none", transform: `translate(${mp.x*-0.25}px,${mp.y*-0.25}px)`, transition: "transform 1.2s ease-out, opacity 2s ease 0.5s", opacity: vis ? 1 : 0, zIndex: 2 }}>S</div>
+      <div style={{ position: "absolute", bottom: "22%", left: 0, width: vis ? "30%" : "0%", height: 1, background: `linear-gradient(to right, ${B}15, transparent)`, transition: "width 3s cubic-bezier(0.16,1,0.3,1) 1.2s", zIndex: 2 }} />
+      <div style={{ position: "absolute", top: "18%", right: 0, width: vis ? "20%" : "0%", height: 1, background: `linear-gradient(to left, ${B}10, transparent)`, transition: "width 3s cubic-bezier(0.16,1,0.3,1) 1.5s", zIndex: 2 }} />
+
+      <div style={{ position: "relative", zIndex: 3, maxWidth: 900, margin: "0 auto", padding: "120px 32px 80px", width: "100%" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 40, opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(15px)", transition: "all 1s ease 0.3s" }}>
+          <Fleuron size={16} />
+          <span style={{ fontFamily: F, fontSize: 13, color: GOLD, letterSpacing: 5 }}>Şair · Yazar</span>
+          <div style={{ flex: 1, height: 1, background: `${GOLD}25`, maxWidth: 200 }} />
+        </div>
+        <h1 style={{ fontFamily: F, fontSize: "clamp(58px, 10vw, 124px)", color: CR, fontWeight: 400, lineHeight: 0.92, letterSpacing: -1 }}>
+          <span style={{ display: "block", overflow: "hidden" }}>
+            <span style={{ display: "block", transform: vis ? "translateY(0)" : "translateY(110%)", transition: "transform 1.2s cubic-bezier(0.16,1,0.3,1) 0.5s" }}>Cem</span>
+          </span>
+          <span style={{ display: "block", overflow: "hidden" }}>
+            <span style={{ display: "block", transform: vis ? "translateY(0)" : "translateY(110%)", transition: "transform 1.2s cubic-bezier(0.16,1,0.3,1) 0.7s", fontStyle: "italic", color: GOLD_LIGHT }}>Savran</span>
+          </span>
+        </h1>
+        <Signature visible={sigDraw} />
+        <div style={{ overflow: "hidden", marginTop: 16, marginBottom: 44 }}>
+          <div style={{ width: 80, height: 2, background: B, transform: vis ? "translateX(0)" : "translateX(-110%)", transition: "transform 1.4s cubic-bezier(0.16,1,0.3,1) 1s" }} />
+        </div>
+        <div style={{ height: 84, position: "relative", maxWidth: 580, marginBottom: 56, overflow: "hidden" }}>
+          {heroQuotes.map((q, i) => (
+            <p key={i} style={{ fontFamily: F, fontSize: 22, color: `${CR}90`, lineHeight: 1.85, fontStyle: "italic", position: "absolute", top: 0, left: 0, right: 0, opacity: qi === i ? 1 : 0, transform: qi === i ? "translateY(0)" : "translateY(14px)", transition: "opacity 1.2s ease, transform 1.2s ease" }}>
+              <span style={{ color: GOLD, marginRight: 8 }}>"</span>{q}<span style={{ color: GOLD, marginLeft: 4 }}>"</span>
+            </p>
+          ))}
+          <div style={{ position: "absolute", bottom: 0, left: 0, display: "flex", gap: 8 }}>
+            {heroQuotes.map((_, i) => (<div key={i} style={{ width: qi === i ? 24 : 6, height: 2, background: qi === i ? GOLD : `${GOLD}30`, transition: "all 0.6s ease" }} />))}
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 44, marginBottom: 56, flexWrap: "wrap", opacity: vis ? 1 : 0, transition: "opacity 1.5s ease 1.8s" }}>
+          {[{ n: "4", l: "Kitap" }, { n: "3", l: "Dergi" }, { n: "10+", l: "Yakında" }].map((s, i) => (
+            <div key={i} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <span style={{ fontFamily: F, fontSize: 30, color: CR, fontWeight: 400 }}>{s.n}</span>
+              <span style={{ fontFamily: F, fontSize: 12, color: `${MU}90`, letterSpacing: 2.5 }}>{s.l}</span>
+            </div>
+          ))}
+        </div>
+        <div style={{ display: "flex", gap: 20, flexWrap: "wrap", opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(20px)", transition: "all 1s ease 1.5s" }}>
+          <MagButton onClick={() => { setCurrentPage("books"); window.scrollTo(0,0); }}
+            style={{ background: B, color: CR, border: `1px solid ${B}`, padding: "16px 44px", fontFamily: F, fontSize: 15, letterSpacing: 3, cursor: "pointer" }}>Eserleri Keşfet</MagButton>
+          <MagButton onClick={() => { setCurrentPage("about"); window.scrollTo(0,0); }}
+            style={{ background: "transparent", color: MU, border: `1px solid ${MU}40`, padding: "16px 44px", fontFamily: F, fontSize: 15, letterSpacing: 3, cursor: "pointer" }}>Özgeçmiş</MagButton>
+        </div>
+      </div>
+      <div style={{ position: "absolute", bottom: 36, left: "50%", transform: "translateX(-50%)", zIndex: 3, display: "flex", flexDirection: "column", alignItems: "center", gap: 12, opacity: vis ? 1 : 0, transition: "opacity 1.5s ease 2.5s" }}>
+        <span style={{ fontFamily: F, fontSize: 11, color: `${GOLD}80`, letterSpacing: 4, fontStyle: "italic" }}>aşağı</span>
+        <div className="scroll-line" />
+      </div>
+    </section>
+  );
+}
+
+/* ═══════ ABOUT ═══════ */
+function AboutPage() {
+  const [r1,v1]=useReveal(),[r2,v2]=useReveal(),[r3,v3]=useReveal(),[r4,v4]=useReveal(),[r5,v5]=useReveal(),[rS,vS]=useReveal(),[rU,vU]=useReveal(),[rT,vT]=useReveal();
+  return (
+    <section style={{ minHeight: "100vh", paddingTop: 110, position: "relative" }}>
+      <div style={{ maxWidth: 800, margin: "0 auto", padding: "0 32px 110px", position: "relative", zIndex: 3 }}>
+        <header ref={r1} style={{ marginBottom: 72, opacity: v1?1:0, transform: v1?"translateY(0)":"translateY(40px)", transition: "all 1s ease" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}><Fleuron /><p style={{ fontFamily: F, fontSize: 13, color: GOLD, letterSpacing: 4 }}>Özgeçmiş</p></div>
+          <h2 className="ptitle">Cem Savran</h2>
+          <p style={{ fontFamily: F, fontSize: 18, color: MU, letterSpacing: 1, fontStyle: "italic" }}>27 Mart 1965 · Şair · Yazar</p>
+          <LineDraw width={70} visible={v1} delay={0.3} />
+        </header>
+        <div ref={rS} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 2, marginBottom: 64, opacity: vS?1:0, transform: vS?"translateY(0)":"translateY(30px)", transition: "all 0.8s ease 0.2s" }}>
+          {[{ num: 4, label: "Kitap", s: "" },{ num: 3, label: "Dergi", s: "" },{ num: 2, label: "Çeviri", s: "" },{ num: 10, label: "Yeni Eser", s: "+" }].map((s,i) => (
+            <div key={i} className="stat-cell" style={{ borderLeft: i===0?`3px solid ${B}`:`1px solid ${B}15` }}>
+              <p style={{ fontFamily: F, fontSize: 40, color: CR }}><Counter end={s.num} visible={vS} duration={1500} suffix={s.s} /></p>
+              <p style={{ fontFamily: F, fontSize: 13, color: MU, letterSpacing: 2.5, marginTop: 4 }}>{s.label}</p>
+            </div>
+          ))}
+        </div>
+        <div ref={r2} className="photo-ph" style={{ opacity: v2?1:0, transform: v2?"translateY(0) scale(1)":"translateY(20px) scale(0.98)", transition: "all 1s ease 0.2s" }}>
+          <div style={{ position: "absolute", inset: 0, border: `1px solid ${B}30` }} />
+          <p style={{ fontFamily: F, fontSize: 14, color: `${MU}50`, letterSpacing: 3, fontStyle: "italic" }}>Fotoğraf</p>
+          <div style={{ position: "absolute", top: -4, left: -4, width: 22, height: 22, borderTop: `2px solid ${GOLD}40`, borderLeft: `2px solid ${GOLD}40` }} />
+          <div style={{ position: "absolute", bottom: -4, right: -4, width: 22, height: 22, borderBottom: `2px solid ${GOLD}40`, borderRight: `2px solid ${GOLD}40` }} />
+        </div>
+        <div ref={r3} style={{ padding: "30px 38px", borderLeft: `3px solid ${B}`, background: `${DK}cc`, marginBottom: 56, opacity: v3?1:0, transform: v3?"translateX(0)":"translateX(-30px)", transition: "all 0.8s ease 0.1s" }}>
+          <p className="lbl" style={{ marginBottom: 10 }}>Eğitim</p>
+          <p style={{ fontFamily: F, fontSize: 20, color: CR, lineHeight: 1.7 }}>{bio.education}</p>
+        </div>
+        <div ref={r4} style={{ marginBottom: 80 }}>
+          {bio.paragraphs.map((p,i) => (<p key={i} style={{ fontFamily: F, fontSize: 19, color: `${CR}d0`, lineHeight: 2.1, marginBottom: 28, opacity: v4?1:0, transform: v4?"translateY(0)":"translateY(20px)", transition: `all 0.8s ease ${0.12*i}s` }}>{p}</p>))}
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 16, justifyContent: "center", marginBottom: 56 }}>
+          <div style={{ flex: 1, height: 1, background: `${GOLD}25`, maxWidth: 100 }} />
+          <Fleuron size={18} />
+          <div style={{ flex: 1, height: 1, background: `${GOLD}25`, maxWidth: 100 }} />
+        </div>
+        <div ref={rT} style={{ marginBottom: 80, opacity: vT?1:0, transition: "opacity 1s ease" }}>
+          <p className="lbl" style={{ marginBottom: 32, textAlign: "center" }}>Yıllar İçinde</p>
+          <div style={{ position: "relative", paddingLeft: 28 }}>
+            <div style={{ position: "absolute", left: 6, top: 8, bottom: 8, width: 1, background: `linear-gradient(to bottom, ${GOLD}50, ${B}50, ${B}20)` }} />
+            {timeline.map((t, i) => (
+              <div key={i} className="timeline-row" style={{ opacity: vT?1:0, transform: vT?"translateX(0)":"translateX(-15px)", transition: `all 0.6s ease ${i*0.1+0.2}s` }}>
+                <div className="timeline-dot" />
+                <div style={{ display: "flex", alignItems: "baseline", gap: 16, flexWrap: "wrap" }}>
+                  <span style={{ fontFamily: F, fontSize: 24, color: GOLD, fontWeight: 400 }}>{t.y}</span>
+                  <span style={{ fontFamily: F, fontSize: 18, color: CR }}>{t.e}</span>
+                </div>
+                <p style={{ fontFamily: F, fontSize: 15, color: MU, fontStyle: "italic", marginTop: 4 }}>{t.s}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div ref={r5} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 40, marginBottom: 64, opacity: v5?1:0, transform: v5?"translateY(0)":"translateY(30px)", transition: "all 0.8s ease 0.1s" }}>
+          <div>
+            <p className="lbl" style={{ marginBottom: 20, borderBottom: `1px solid ${B}30`, paddingBottom: 10 }}>Dergiler</p>
+            {bio.magazines.map((m,i) => (<p key={i} className="list-item" style={{ opacity: v5?1:0, transform: v5?"translateX(0)":"translateX(-15px)", transition: `all 0.5s ease ${0.1*i+0.3}s` }}>{m}</p>))}
+          </div>
+          <div>
+            <p className="lbl" style={{ marginBottom: 20, borderBottom: `1px solid ${B}30`, paddingBottom: 10 }}>Çeviriler</p>
+            {bio.translations.map((t,i) => (<p key={i} className="list-item" style={{ opacity: v5?1:0, transform: v5?"translateX(0)":"translateX(-15px)", transition: `all 0.5s ease ${0.1*i+0.3}s` }}>{t}</p>))}
+          </div>
+        </div>
+        <div ref={rU} style={{ padding: "36px 40px", border: `1px solid ${B}25`, background: `${BD}15`, opacity: vU?1:0, transition: "opacity 0.8s ease 0.2s" }}>
+          <p className="lbl" style={{ marginBottom: 14 }}>Yakında</p>
+          <p style={{ fontFamily: F, fontSize: 20, color: CR, lineHeight: 1.8, fontStyle: "italic" }}>
+            <Typewriter text="Sırada beş roman, üç şiir dosyası ve iki inceleme kitabı bulunuyor." visible={vU} speed={28} />
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════ BOOKS ═══════ */
+function BooksPage({ setCurrentPage, setSelectedBook }) {
+  const [rH,vH]=useReveal();
+  return (
+    <section style={{ minHeight: "100vh", paddingTop: 110, position: "relative" }}>
+      <div style={{ maxWidth: 1000, margin: "0 auto", padding: "0 32px 110px", position: "relative", zIndex: 3 }}>
+        <header ref={rH} style={{ marginBottom: 72, opacity: vH?1:0, transform: vH?"translateY(0)":"translateY(40px)", transition: "all 1s ease" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}><Fleuron /><p style={{ fontFamily: F, fontSize: 13, color: GOLD, letterSpacing: 4 }}>Eserler</p></div>
+          <h2 className="ptitle">Portföy</h2>
+          <LineDraw width={70} visible={vH} delay={0.3} />
+        </header>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 2 }}>
+          {books.map((book, idx) => {
+            const [r,v]=useReveal(0.1);
+            return (
+              <div key={book.id} ref={r}
+                onClick={() => { setSelectedBook(book); setCurrentPage("book-detail"); window.scrollTo(0,0); }}
+                className={"book-card" + (book.isCosmic ? " book-card-featured" : "")}
+                style={{ opacity: v?1:0, transform: v?"translateY(0)":"translateY(40px)", transition: `all 0.8s cubic-bezier(0.16,1,0.3,1) ${idx*0.12}s` }}>
+                {book.isCosmic && <div className="book-new-badge">Yeni</div>}
+                <div className="book-numeral">{book.number}</div>
+                <div className="book-letter">{book.letter}</div>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 8 }}>
+                  <span className="type-badge">{book.type}</span>
+                  {book.year && <span style={{ fontFamily: F, fontSize: 14, color: MU }}>{book.year}</span>}
+                </div>
+                <h3 className="book-title">{book.title}</h3>
+                <p className="book-tagline">{book.tagline}</p>
+                <div className="book-arrow"><span>Devamı</span><span className="arrow">→</span></div>
+                <div className="book-accent-line" />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════ ECINNI SPECIAL DETAIL PAGE ═══════ */
+function EcinniDetailPage({ setCurrentPage }) {
+  const [vis,setVis]=useState(false);
+  const [mp, setMp] = useState({ x: 0, y: 0 });
+  useEffect(()=>{setTimeout(()=>setVis(true),100)},[]);
+  const [rP,vP]=useReveal();
+  const [rS,vS]=useReveal();
+  const [rC,vC]=useReveal();
+  const [rCh,vCh]=useReveal();
+  const [rT,vT]=useReveal();
+  const [rQ,vQ]=useReveal();
+  const [rF,vF]=useReveal();
+  const hm = useCallback((e) => { setMp({ x: (e.clientX / window.innerWidth - 0.5) * 24, y: (e.clientY / window.innerHeight - 0.5) * 24 }); }, []);
+
+  // Generate stars
+  const [stars] = useState(() => Array.from({ length: 90 }, () => ({
+    size: Math.random() * 1.8 + 0.4,
+    top: Math.random() * 100,
+    left: Math.random() * 100,
+    dur: Math.random() * 4 + 2,
+    maxO: Math.random() * 0.7 + 0.2,
+    delay: Math.random() * 5
+  })));
+
+  return (
+    <section onMouseMove={hm} className="ecinni-page" style={{ minHeight: "100vh", paddingTop: 100, position: "relative", overflow: "hidden" }}>
+      {/* Cosmic backdrop */}
+      <div className="cosmos-bg">
+        <div className="starfield-bg">
+          {stars.map((s, i) => (
+            <div key={i} className="star-bg" style={{
+              width: s.size, height: s.size,
+              top: `${s.top}%`, left: `${s.left}%`,
+              animationDuration: `${s.dur}s`,
+              animationDelay: `${s.delay}s`,
+              "--max-o": s.maxO
+            }} />
+          ))}
+        </div>
+        <div className="nebula nebula-burgundy" style={{ transform: `translate(${mp.x*0.5}px,${mp.y*0.5}px)` }} />
+        <div className="nebula nebula-gold" style={{ transform: `translate(${mp.x*-0.4}px,${mp.y*-0.4}px)` }} />
+        <div className="nebula nebula-deep" style={{ transform: `translate(${mp.x*0.3}px,${mp.y*-0.3}px)` }} />
+      </div>
+
+      <div style={{ position: "relative", zIndex: 3, maxWidth: 1100, margin: "0 auto", padding: "0 24px 100px" }}>
+        <button onClick={() => { setCurrentPage("books"); window.scrollTo(0,0); }} className="back-btn" style={{ marginTop: 12 }}>
+          <span>←</span> Tüm Eserler
+        </button>
+
+        {/* HERO */}
+        <div style={{ minHeight: "85vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", position: "relative", padding: "40px 0 80px" }}>
+          {/* Orbits */}
+          <div className="orbit-stage">
+            <div className="orbit orbit-1" />
+            <div className="orbit orbit-2" />
+            <div className="orbit orbit-3" />
+          </div>
+
+          <div className="ec-kicker" style={{ opacity: vis?1:0, transform: vis?"translateY(0)":"translateY(15px)", transition: "all 1.2s ease 0.2s" }}>
+            <div className="kicker-line" />
+            <span style={{ fontFamily: F, fontSize: 12, letterSpacing: 8, color: GOLD }}>YENİ ROMAN</span>
+            <div className="kicker-line right" />
+          </div>
+
+          <p style={{ fontFamily: F, fontSize: "clamp(20px, 2.5vw, 28px)", color: CR, letterSpacing: 6, fontStyle: "italic", fontWeight: 300, marginBottom: 24, marginTop: 36, opacity: vis?1:0, transform: vis?"translateY(0)":"translateY(20px)", transition: "all 1.2s ease 0.5s" }}>
+            cem savran
+          </p>
+
+          <h1 className="ec-title" style={{ opacity: vis?1:0, transition: "opacity 2s ease 0.8s" }}>
+            <span className="title-accent left">✦</span>
+            <span className="ec-title-bg">ecinni</span>
+            <span className="title-accent right">✦</span>
+          </h1>
+
+          <div style={{ fontFamily: F, fontSize: "clamp(14px, 1.8vw, 18px)", letterSpacing: 12, color: GOLD, fontStyle: "italic", marginTop: 30, opacity: vis?1:0, transform: vis?"translateY(0)":"translateY(20px)", transition: "all 1.2s ease 1.5s" }}>
+            — ROMAN —
+          </div>
+
+          <p style={{ fontFamily: F, fontSize: "clamp(18px, 2.4vw, 24px)", maxWidth: 600, lineHeight: 1.7, color: `${CR}aa`, fontStyle: "italic", marginTop: 60, opacity: vis?1:0, transform: vis?"translateY(0)":"translateY(20px)", transition: "all 1.2s ease 1.8s" }}>
+            İçimizdeki sağduyunun mu, yoksa<br />vicdanın mı sesi?
+          </p>
+        </div>
+
+        {/* Ornament */}
+        <div className="ec-ornament"><div className="div-line" /><div className="div-mark">✦</div><div className="div-line" /></div>
+
+        {/* PROLOGUE */}
+        <section ref={rP} style={{ padding: "60px 20px", maxWidth: 720, margin: "0 auto", textAlign: "center", opacity: vP?1:0, transform: vP?"translateY(0)":"translateY(40px)", transition: "all 1s ease" }}>
+          <div style={{ fontFamily: F, fontSize: 64, color: GOLD, lineHeight: 0.5, marginBottom: 30, fontStyle: "italic" }}>❦</div>
+          <p style={{ fontFamily: F, fontStyle: "italic", fontWeight: 400, fontSize: "clamp(22px, 2.8vw, 30px)", lineHeight: 1.7, color: CR }}>
+            Kozmik bir <em style={{ color: GOLD_LIGHT, fontStyle: "normal" }}>ses</em>… İstanbul sokaklarında bir <em style={{ color: GOLD_LIGHT, fontStyle: "normal" }}>arayış</em>… ve bin yıllık bir <em style={{ color: GOLD_LIGHT, fontStyle: "normal" }}>bilge</em>.
+          </p>
+        </section>
+
+        <div className="ec-ornament"><div className="div-line" /><div className="div-mark">✦</div><div className="div-line" /></div>
+
+        {/* SYNOPSIS */}
+        <section ref={rS} className="ec-section" style={{ opacity: vS?1:0, transform: vS?"translateY(0)":"translateY(40px)", transition: "all 1s ease" }}>
+          <div className="ec-eyebrow"><span className="eb-num">I.</span><div className="eb-line" /><span className="eb-text">Kitabın Hikâyesi</span><div className="eb-line" /><span className="eb-num">I.</span></div>
+          <div className="syn-grid">
+            <div className="syn-block dropcap">
+              <p>Roman, insanlığın ortak belleğinin, uzayın derinliklerinden gelen <span className="hl">kozmik bir seste</span> yankılanışının anlatısı...</p>
+              <p><span className="hl">Cesim</span>, Cevahir adını verdiği iç sesinin yoldaşlığıyla İstanbul sokaklarını arşınlıyor. Hijyenik klinik odasındaki derin sessizlikten Gezi Parkı'nın biber gazı kokan hengâmesine uzanan bir çizgide ilerliyor.</p>
+            </div>
+            <div className="syn-block">
+              <p>Eylemci bir gazeteci olan <span className="hl">Elif</span>'le tanışır. Onunla birlikte kendi zihinsel karmaşasına <span className="hl">toplumsal kalkışmada</span> şifa arar.</p>
+              <p>Cevahir, Naguma adlı bir uydu gezegenden gelip bin yıl boyunca atalarının bedenlerinde konaklamış bedensiz bir bilge mi — yoksa Cesim'in zihninin yarattığı bir <span className="hl">imge</span> mi?</p>
+            </div>
+          </div>
+        </section>
+
+        <div className="ec-ornament"><div className="div-line" /><div className="div-mark">✦</div><div className="div-line" /></div>
+
+        {/* COSMIC ORIGIN */}
+        <section ref={rC} className="ec-section ec-cosmic" style={{ opacity: vC?1:0, transform: vC?"translateY(0)":"translateY(40px)", transition: "all 1s ease" }}>
+          <div className="ec-eyebrow"><span className="eb-num">II.</span><div className="eb-line" /><span className="eb-text">Kozmik Köken</span><div className="eb-line" /><span className="eb-num">II.</span></div>
+          <div className="cosmic-inner">
+            <div className="planet-stage">
+              <div className="planet-orbit" />
+              <div className="planet" />
+              <div className="planet-label">NAGUMA</div>
+            </div>
+            <div className="cosmic-text">
+              <h2>Bin yıl boyunca <em>atalarının bedenlerinde</em> konakladı.</h2>
+              <p>Naguma adlı bir uydu gezegenden geldi. Anadolu'nun bilgelik coğrafyasında dolaştı; sözün ve aşkın izini sürdü.</p>
+              <ul className="cosmic-list">
+                <li>Dede Korkut'la tanıştı</li>
+                <li>Yunus Emre'nin dizlerinde oturdu</li>
+                <li>Ahi Evran'ın sofrasına misafir oldu</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <div className="ec-ornament"><div className="div-line" /><div className="div-mark">✦</div><div className="div-line" /></div>
+
+        {/* CHARACTERS */}
+        <section ref={rCh} className="ec-section" style={{ opacity: vCh?1:0, transform: vCh?"translateY(0)":"translateY(40px)", transition: "all 1s ease" }}>
+          <div className="ec-eyebrow"><span className="eb-num">III.</span><div className="eb-line" /><span className="eb-text">Karakterler</span><div className="eb-line" /><span className="eb-num">III.</span></div>
+          <div className="char-row">
+            <div className="char">
+              <div className="char-icon-wrap">
+                <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="16"/><circle cx="20" cy="15" r="3.5"/><path d="M12 30 Q12 22 20 22 Q28 22 28 30"/></svg>
+              </div>
+              <div className="char-name">Cesim</div>
+              <div className="char-role">Arayan</div>
+              <p className="char-desc">İç sesinin yoldaşlığıyla İstanbul sokaklarını arşınlayan, kendi zihinsel karmaşasında şifa arayan başkarakter.</p>
+            </div>
+            <div className="char">
+              <div className="char-icon-wrap">
+                <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="16"/><path d="M20 8 L22 18 L32 20 L22 22 L20 32 L18 22 L8 20 L18 18 Z"/></svg>
+              </div>
+              <div className="char-name">Cevahir</div>
+              <div className="char-role">Kozmik Ses</div>
+              <p className="char-desc">Naguma gezegeninden gelip bin yıl boyunca atalarının bedenlerinde konaklamış bedensiz bilge — ya da bir imge.</p>
+            </div>
+            <div className="char">
+              <div className="char-icon-wrap">
+                <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="16"/><line x1="20" y1="9" x2="20" y2="31"/><circle cx="20" cy="9" r="1.6"/></svg>
+              </div>
+              <div className="char-name">Elif</div>
+              <div className="char-role">Direnen</div>
+              <p className="char-desc">Gezi Parkı'nın biber gazı kokan hengâmesinde eylemci bir gazeteci; toplumsal kalkışmanın sesi.</p>
+            </div>
+          </div>
+        </section>
+
+        <div className="ec-ornament"><div className="div-line" /><div className="div-mark">✦</div><div className="div-line" /></div>
+
+        {/* THEMES */}
+        <section ref={rT} className="ec-section" style={{ opacity: vT?1:0, transform: vT?"translateY(0)":"translateY(40px)", transition: "all 1s ease", textAlign: "center" }}>
+          <div className="ec-eyebrow"><span className="eb-num">IV.</span><div className="eb-line" /><span className="eb-text">Ana Eksenler</span><div className="eb-line" /><span className="eb-num">IV.</span></div>
+          <div className="themes-grid">
+            {[["01","Bilimkurgu"],["02","Tasavvuf"],["03","İç Ses"],["04","İstanbul"],["05","Kozmik Bellek"],["06","Toplumsal Kalkışma"]].map(([n,t]) => (
+              <div key={n} className="theme-cell-ec"><span className="num">{n}</span>{t}</div>
+            ))}
+          </div>
+        </section>
+
+        <div className="ec-ornament"><div className="div-line" /><div className="div-mark">✦</div><div className="div-line" /></div>
+
+        {/* BIG QUOTE */}
+        <section ref={rQ} className="ec-quote" style={{ opacity: vQ?1:0, transform: vQ?"translateY(0)":"translateY(40px)", transition: "all 1s ease" }}>
+          <div className="ec-quote-stage">
+            <div className="ec-quote-mark">❝</div>
+            <p className="ec-quote-body">Sarsıcı macerasında <em>ona eşlik etmek</em> heyecan verici…</p>
+            <div className="ec-quote-attr">— Ahmet Ziya Ünalan</div>
+          </div>
+        </section>
+
+        <div className="ec-ornament"><div className="div-line" /><div className="div-mark">✦</div><div className="div-line" /></div>
+
+        {/* FINALE */}
+        <section ref={rF} className="ec-finale" style={{ opacity: vF?1:0, transform: vF?"translateY(0)":"translateY(40px)", transition: "all 1s ease" }}>
+          <div className="finale-frame">
+            <div className="finale-author">cem savran</div>
+            <h2 className="finale-title">ecinni</h2>
+            <div className="finale-tag">— ROMAN —</div>
+            <a className="finale-cta" href="https://www.kitapyurdu.com/yazar/cem-savran/225641.html" target="_blank" rel="noopener">
+              <span>Kitabı Edin</span>
+              <span className="finale-cta-arrow">→</span>
+            </a>
+          </div>
+        </section>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════ STANDARD BOOK DETAIL ═══════ */
+function BookDetailPage({ book, setCurrentPage }) {
+  const [vis,setVis]=useState(false);
+  useEffect(()=>{setTimeout(()=>setVis(true),100)},[book]);
+  const [rQ,vQ]=useReveal(),[rT,vT]=useReveal(),[rD,vD]=useReveal();
+  if (!book) return null;
+  if (book.isCosmic) return <EcinniDetailPage setCurrentPage={setCurrentPage} />;
+  return (
+    <section style={{ minHeight: "100vh", paddingTop: 110, position: "relative" }}>
+      <div style={{ maxWidth: 740, margin: "0 auto", padding: "0 32px 110px", position: "relative", zIndex: 3 }}>
+        <button onClick={() => { setCurrentPage("books"); window.scrollTo(0,0); }} className="back-btn"><span>←</span> Tüm Eserler</button>
+        <div style={{ marginBottom: 56, opacity: vis?1:0, transform: vis?"translateY(0)":"translateY(30px)", transition: "all 1s ease 0.1s" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
+            <span style={{ fontFamily: F, fontSize: 14, color: GOLD, fontStyle: "italic", letterSpacing: 3 }}>{book.number}</span>
+            <div style={{ width: 30, height: 1, background: `${GOLD}40` }} />
+            <span className="type-badge">{book.type}</span>
+            {book.year && <span style={{ fontFamily: F, fontSize: 15, color: MU }}>{book.year}</span>}
+          </div>
+          <h2 className="ptitle" style={{ fontSize: "clamp(46px, 7vw, 76px)", letterSpacing: 2 }}>{book.title}</h2>
+          <LineDraw width={70} visible={vis} delay={0.4} />
+          <p style={{ fontFamily: F, fontSize: 22, color: MU, fontStyle: "italic", lineHeight: 1.8, marginTop: 24, opacity: vis?1:0, transition: "opacity 1s ease 0.6s" }}>{book.tagline}</p>
+        </div>
+        <div ref={rD} className="atmosphere-box" style={{ opacity: vD?1:0, transform: vD?"translateX(0)":"translateX(-20px)", transition: "all 0.8s ease" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
+            <span style={{ fontFamily: F, fontSize: 30, color: `${GOLD}70` }}>{book.detail.icon}</span>
+            <span style={{ fontFamily: F, fontSize: 13, color: GOLD, letterSpacing: 3 }}>{book.detail.accent}</span>
+          </div>
+          <p style={{ fontFamily: F, fontSize: 17, color: `${CR}88`, lineHeight: 1.85, fontStyle: "italic" }}>{book.detail.atmosphere}</p>
+        </div>
+        <p style={{ fontFamily: F, fontSize: 20, color: `${CR}d0`, lineHeight: 2.2, marginBottom: 56, opacity: vis?1:0, transition: "opacity 1s ease 0.5s" }}>{book.description}</p>
+        <div style={{ display: "flex", alignItems: "center", gap: 16, justifyContent: "center", marginBottom: 56 }}>
+          <div style={{ flex: 1, height: 1, background: `${GOLD}20`, maxWidth: 80 }} />
+          <Fleuron size={14} />
+          <div style={{ flex: 1, height: 1, background: `${GOLD}20`, maxWidth: 80 }} />
+        </div>
+        <div ref={rT} style={{ marginBottom: 56, opacity: vT?1:0, transition: "opacity 0.8s ease" }}>
+          <p className="lbl" style={{ marginBottom: 18 }}>Temalar</p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+            {book.themes.map((t,i) => (<span key={t} className="theme-tag" style={{ opacity: vT?1:0, transform: vT?"translateY(0) scale(1)":"translateY(10px) scale(0.95)", transition: `all 0.5s ease ${i*0.1+0.2}s` }}>{t}</span>))}
+          </div>
+        </div>
+        <div ref={rQ} className="quote-block" style={{ opacity: vQ?1:0, transform: vQ?"translateX(0)":"translateX(-20px)", transition: "all 0.8s ease" }}>
+          <span className="quote-mark">"</span>
+          <p style={{ fontFamily: F, fontSize: 22, color: CR, fontStyle: "italic", lineHeight: 2, position: "relative", zIndex: 2 }}>{book.quote}</p>
+          <p style={{ fontFamily: F, fontSize: 14, color: GOLD, marginTop: 22, letterSpacing: 2 }}>— Cem Savran</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════ BLOG ═══════ */
+function BlogPage() {
+  const [sel, setSel] = useState(null);
+  const [rH,vH]=useReveal();
+  if (sel) {
+    return (
+      <section style={{ minHeight: "100vh", paddingTop: 110, position: "relative" }}>
+        <div style={{ maxWidth: 660, margin: "0 auto", padding: "0 32px 110px", position: "relative", zIndex: 3 }}>
+          <button onClick={() => setSel(null)} className="back-btn"><span>←</span> Tüm Yazılar</button>
+          <p className="lbl" style={{ marginBottom: 16 }}>{sel.category} · {sel.date}</p>
+          <h2 className="ptitle" style={{ fontSize: "clamp(32px,5vw,46px)", lineHeight: 1.3, marginBottom: 24 }}>{sel.title}</h2>
+          <LineDraw width={50} visible={true} delay={0.1} />
+          <p style={{ fontFamily: F, fontSize: 21, color: `${CR}d0`, lineHeight: 2.2, fontStyle: "italic", marginTop: 40 }}>{sel.excerpt}</p>
+          <div style={{ marginTop: 56, padding: 36, border: `1px solid ${B}20`, textAlign: "center", background: `${DK}66` }}>
+            <Fleuron size={16} />
+            <p style={{ fontFamily: F, fontSize: 17, color: MU, marginTop: 12 }}>Bu yazının tam metni yakında yayınlanacaktır.</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+  return (
+    <section style={{ minHeight: "100vh", paddingTop: 110, position: "relative" }}>
+      <div style={{ maxWidth: 740, margin: "0 auto", padding: "0 32px 110px", position: "relative", zIndex: 3 }}>
+        <header ref={rH} style={{ marginBottom: 72, opacity: vH?1:0, transform: vH?"translateY(0)":"translateY(40px)", transition: "all 1s ease" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}><Fleuron /><p style={{ fontFamily: F, fontSize: 13, color: GOLD, letterSpacing: 4 }}>Yazılar</p></div>
+          <h2 className="ptitle">Blog</h2>
+          <LineDraw width={70} visible={vH} delay={0.3} />
+        </header>
+        {blogPosts.map((post,i) => { const [r,v]=useReveal(0.1); return (
+          <div key={post.id} ref={r} onClick={() => setSel(post)} className="blog-row" style={{ opacity: v?1:0, transform: v?"translateY(0)":"translateY(25px)", transition: `all 0.7s ease ${i*0.1}s` }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
+              <span className="lbl" style={{ marginBottom: 0 }}>{post.category}</span>
+              <span style={{ fontFamily: F, fontSize: 14, color: `${MU}80`, fontStyle: "italic" }}>{post.date}</span>
+            </div>
+            <h3 style={{ fontFamily: F, fontSize: 27, color: CR, fontWeight: 400, marginBottom: 12, lineHeight: 1.35 }}>{post.title}</h3>
+            <p style={{ fontFamily: F, fontSize: 17, color: MU, lineHeight: 1.85, fontStyle: "italic" }}>{post.excerpt}</p>
+          </div>
+        ); })}
+      </div>
+    </section>
+  );
+}
+
+/* ═══════ CONTACT ═══════ */
+function ContactPage() {
+  const [rH,vH]=useReveal(),[rQ,vQ]=useReveal();
+  const links = [
+    { label: "Facebook", sub: "Cem Savran", href: "https://www.facebook.com/share/18PUU72k3Y/?mibextid=wwXIfr", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill={CR}><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg> },
+    { label: "Instagram", sub: "@cemsavran_", href: "https://www.instagram.com/cemsavran_", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill={CR}><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg> },
+    { label: "Kitapyurdu", sub: "Tüm kitapları satın al", href: "https://www.kitapyurdu.com/yazar/cem-savran/225641.html", icon: <span style={{ fontFamily: F, fontSize: 16, color: CR, fontWeight: 600 }}>K</span> },
+    { label: "Vikipedi", sub: "Biyografi", href: "https://tr.wikipedia.org/wiki/Cem_Savran", icon: <span style={{ fontFamily: F, fontSize: 16, color: CR, fontStyle: "italic" }}>W</span> }
+  ];
+  return (
+    <section style={{ minHeight: "100vh", paddingTop: 110, position: "relative" }}>
+      <div style={{ maxWidth: 620, margin: "0 auto", padding: "0 32px 110px", position: "relative", zIndex: 3 }}>
+        <header ref={rH} style={{ marginBottom: 72, opacity: vH?1:0, transform: vH?"translateY(0)":"translateY(40px)", transition: "all 1s ease" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}><Fleuron /><p style={{ fontFamily: F, fontSize: 13, color: GOLD, letterSpacing: 4 }}>Bağlantı</p></div>
+          <h2 className="ptitle">İletişim</h2>
+          <LineDraw width={70} visible={vH} delay={0.3} />
+        </header>
+        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          {links.map((s,i) => { const [r,v]=useReveal(0.1); return (
+            <a key={s.label} ref={r} href={s.href} target="_blank" rel="noopener noreferrer" className="social-link" style={{ opacity: v?1:0, transform: v?"translateX(0)":"translateX(-20px)", transition: `all 0.6s ease ${i*0.1}s` }}>
+              <div className="social-icon">{s.icon}</div>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontFamily: F, fontSize: 18, color: CR }}>{s.label}</p>
+                <p style={{ fontFamily: F, fontSize: 14, color: MU }}>{s.sub}</p>
+              </div>
+              <span className="social-arrow">→</span>
+            </a>
+          ); })}
+        </div>
+        <div ref={rQ} className="quote-block" style={{ marginTop: 72, opacity: vQ?1:0, transform: vQ?"translateX(0)":"translateX(-20px)", transition: "all 0.8s ease" }}>
+          <span className="quote-mark">"</span>
+          <p style={{ fontFamily: F, fontSize: 21, color: CR, fontStyle: "italic", lineHeight: 2, position: "relative", zIndex: 2 }}>
+            Ben şiirin olduğu kadar romanın da sıradanlıktan uzak, yaratıcı ve sanatsal bir çabanın ürünü, edebi değer taşıması gereken bir tür olduğunu düşünüyorum.
+          </p>
+          <p style={{ fontFamily: F, fontSize: 14, color: GOLD, marginTop: 22, letterSpacing: 2 }}>— Cem Savran</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════ FOOTER ═══════ */
+function Footer() {
+  const [r,v]=useReveal(0.3);
+  return (
+    <footer ref={r} style={{ borderTop: `1px solid ${B}18`, padding: "60px 32px 40px", textAlign: "center", opacity: v?1:0, transition: "opacity 1s ease", position: "relative", zIndex: 3 }}>
+      <Fleuron size={18} />
+      <p style={{ fontFamily: F, fontSize: 16, color: `${CR}50`, letterSpacing: 4, marginTop: 14, marginBottom: 6 }}>CEM SAVRAN</p>
+      <p style={{ fontFamily: F, fontSize: 13, color: `${CR}30`, letterSpacing: 2, fontStyle: "italic", marginBottom: 24 }}>Şair · Yazar</p>
+      <div style={{ width: 30, height: 1, background: `${B}30`, margin: "0 auto 20px" }} />
+      <p style={{ fontFamily: F, fontSize: 12, color: `${CR}20` }}>© 2026 Cem Savran — Tüm hakları saklıdır.</p>
+    </footer>
+  );
+}
+
+/* ═══════ APP ═══════ */
+export default function App() {
+  const [currentPage, setCurrentPage] = useState("home");
+  const [selectedBook, setSelectedBook] = useState(null);
+  const [pageKey, setPageKey] = useState(0);
+  useEffect(() => { setPageKey(k => k + 1); }, [currentPage]);
+  const renderPage = () => {
+    switch (currentPage) {
+      case "home": return <HeroSection setCurrentPage={setCurrentPage} />;
+      case "about": return <AboutPage />;
+      case "books": return <BooksPage setCurrentPage={setCurrentPage} setSelectedBook={setSelectedBook} />;
+      case "book-detail": return <BookDetailPage book={selectedBook} setCurrentPage={setCurrentPage} />;
+      case "blog": return <BlogPage />;
+      case "contact": return <ContactPage />;
+      default: return <HeroSection setCurrentPage={setCurrentPage} />;
+    }
+  };
+  return (
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Pinyon+Script&display=swap');
+        *{margin:0;padding:0;box-sizing:border-box}
+        html,body{background:${BK};overflow-x:hidden}
+        body{position:relative}
+        ::selection{background:${B};color:${CR}}
+        ::-webkit-scrollbar{width:6px}
+        ::-webkit-scrollbar-track{background:${BK}}
+        ::-webkit-scrollbar-thumb{background:linear-gradient(to bottom,${B},${BD});border-radius:3px}
+        ::-webkit-scrollbar-thumb:hover{background:${B}}
+
+        @keyframes pageEnter{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+        .page-anim{animation:pageEnter 0.8s cubic-bezier(0.16,1,0.3,1)}
+
+        .nav-logo{font-family:${F};font-size:22px;color:${CR};letter-spacing:4px;transition:letter-spacing 0.4s,color 0.4s}
+        .nav-logo:hover{letter-spacing:8px;color:${GOLD_LIGHT}}
+        .nav-link{background:none;border:none;cursor:pointer;font-family:${F};font-size:14px;letter-spacing:2.5px;padding:4px 0;transition:color 0.4s;position:relative}
+        .nav-link[data-active="true"]{color:${CR}}
+        .nav-link[data-active="false"]{color:${MU}}
+        .nav-link:hover{color:${CR}}
+        .nav-link::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:1px;background:${B};transition:width 0.5s cubic-bezier(0.16,1,0.3,1)}
+        .nav-link:hover::after,.nav-link[data-active="true"]::after{width:100%}
+        .nav-link-mobile{background:none;border:none;cursor:pointer;text-align:left;font-family:${F};font-size:18px;color:${MU};letter-spacing:2px;transition:color 0.3s,padding-left 0.3s}
+        .nav-link-mobile:hover,.nav-link-mobile[data-active="true"]{color:${CR};padding-left:12px}
+
+        .lbl{font-family:${F};font-size:13px;color:${GOLD};letter-spacing:4px;margin-bottom:20px}
+        .ptitle{font-family:${F};font-size:clamp(40px,5.5vw,60px);color:${CR};font-weight:400;margin-bottom:14px;letter-spacing:0.5px}
+
+        .stat-cell{padding:30px 24px;background:${DK}cc;text-align:center;transition:background 0.4s,transform 0.4s}
+        .stat-cell:hover{background:${BD}33;transform:translateY(-2px)}
+
+        .photo-ph{width:100%;max-width:380px;aspect-ratio:3/4;background:${DK}cc;margin-bottom:64px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:32px;position:relative}
+        .photo-ph::before{content:'';position:absolute;inset:8px;border:1px solid ${B}15;pointer-events:none;transition:inset 0.5s ease}
+        .photo-ph:hover::before{inset:14px}
+
+        .list-item{font-family:${F};font-size:18px;color:${CR}bb;margin-bottom:12px;padding-left:16px;border-left:2px solid ${B}50;transition:all 0.5s ease}
+        .list-item:hover{padding-left:22px;color:${CR};border-left-color:${GOLD}}
+
+        .timeline-row{position:relative;margin-bottom:36px;padding-left:0}
+        .timeline-dot{position:absolute;left:-28px;top:8px;width:13px;height:13px;border-radius:50%;background:${BK};border:2px solid ${GOLD};box-shadow:0 0 0 4px ${BK},0 0 0 5px ${B}40;transition:transform 0.4s,background 0.4s}
+        .timeline-row:hover .timeline-dot{transform:scale(1.3);background:${GOLD}}
+
+        .book-card{cursor:pointer;padding:50px 38px;background:${DK}cc;border:1px solid ${B}15;position:relative;overflow:hidden;transition:all 0.5s cubic-bezier(0.16,1,0.3,1)}
+        .book-card::before{content:'';position:absolute;top:0;left:0;width:0;height:3px;background:linear-gradient(to right,${B},${GOLD});transition:width 0.7s cubic-bezier(0.16,1,0.3,1)}
+        .book-card:hover::before{width:100%}
+        .book-card:hover{background:${BD}30;border-color:${B}45;transform:translateY(-5px);box-shadow:0 24px 50px rgba(107,15,43,0.2)}
+        .book-card-featured{background:linear-gradient(135deg,${BD}25,${DK}ee);border-color:${GOLD}30;box-shadow:0 0 40px rgba(184,153,111,0.05)}
+        .book-card-featured:hover{box-shadow:0 24px 50px rgba(184,153,111,0.18);border-color:${GOLD}55}
+        .book-new-badge{position:absolute;top:0;left:0;background:${GOLD};color:${BK};font-family:${F};font-size:11px;letter-spacing:3px;padding:5px 14px;font-weight:600;z-index:2}
+        .book-numeral{position:absolute;top:24px;right:30px;font-family:${F};font-size:14px;color:${GOLD}50;letter-spacing:3px;font-style:italic;transition:color 0.4s}
+        .book-card:hover .book-numeral{color:${GOLD}}
+        .book-letter{font-family:${F};font-size:108px;color:${B}20;font-weight:400;line-height:1;margin-bottom:10px;font-style:italic;transition:color 0.5s,transform 0.5s}
+        .book-card-featured .book-letter{color:${GOLD}25}
+        .book-card:hover .book-letter{color:${B}38;transform:translateX(4px)}
+        .book-card-featured:hover .book-letter{color:${GOLD}45}
+        .book-title{font-family:${F};font-size:34px;color:${CR};font-weight:400;margin-bottom:16px;letter-spacing:1px;transition:letter-spacing 0.5s,color 0.4s}
+        .book-card:hover .book-title{letter-spacing:3px;color:${GOLD_LIGHT}}
+        .book-tagline{font-family:${F};font-size:16px;color:${CR}66;line-height:1.85;font-style:italic}
+        .book-arrow{margin-top:30px;display:flex;align-items:center;gap:8px;font-family:${F};font-size:13px;color:${MU};letter-spacing:3px;transition:color 0.4s}
+        .book-card:hover .book-arrow{color:${GOLD}}
+        .arrow{transition:transform 0.4s}
+        .book-card:hover .arrow{transform:translateX(8px)}
+        .book-accent-line{position:absolute;bottom:0;left:0;width:0;height:1px;background:${GOLD}50;transition:width 0.9s cubic-bezier(0.16,1,0.3,1)}
+        .book-card:hover .book-accent-line{width:100%}
+        .type-badge{font-family:${F};font-size:12px;color:${GOLD};letter-spacing:3px;border:1px solid ${GOLD}45;padding:3px 12px;transition:background 0.4s,border-color 0.4s}
+        .book-card:hover .type-badge{background:${GOLD}10;border-color:${GOLD}80}
+
+        .atmosphere-box{padding:30px 34px;margin-bottom:48px;position:relative;overflow:hidden;background:linear-gradient(135deg,${BD}20,${DK}cc);border:1px solid ${B}25;border-left:3px solid ${GOLD}}
+        .atmosphere-box::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,${B}15,transparent 70%);border-radius:50%}
+
+        .theme-tag{padding:8px 22px;border:1px solid ${B}40;font-family:${F};font-size:15px;color:${CR}aa;letter-spacing:1px;transition:all 0.4s;background:${DK}66}
+        .theme-tag:hover{background:${B}25;border-color:${B}90;color:${CR};transform:translateY(-2px)}
+
+        .quote-block{padding:48px 44px;border-left:3px solid ${B};background:${DK}cc;position:relative;overflow:hidden}
+        .quote-mark{position:absolute;top:8px;left:20px;font-family:${F};font-size:90px;color:${B}25;font-style:italic;line-height:1;z-index:1}
+
+        .back-btn{background:none;border:none;cursor:pointer;color:${MU};font-family:${F};font-size:14px;letter-spacing:3px;display:flex;align-items:center;gap:10px;margin-bottom:56px;transition:color 0.3s,gap 0.3s}
+        .back-btn:hover{color:${CR};gap:16px}
+
+        .blog-row{padding:42px 0;cursor:pointer;border-bottom:1px solid ${B}15;transition:padding-left 0.5s cubic-bezier(0.16,1,0.3,1),background 0.4s;position:relative}
+        .blog-row::before{content:'';position:absolute;left:0;top:0;width:0;height:100%;background:linear-gradient(to right,${B}10,transparent);transition:width 0.6s ease}
+        .blog-row:hover::before{width:100%}
+        .blog-row:hover{padding-left:24px}
+
+        .social-link{display:flex;align-items:center;gap:20px;padding:26px 30px;background:${DK}cc;border:1px solid ${B}15;text-decoration:none;transition:all 0.4s;position:relative;overflow:hidden}
+        .social-link::before{content:'';position:absolute;left:0;top:0;width:3px;height:0;background:linear-gradient(to bottom,${B},${GOLD});transition:height 0.5s ease}
+        .social-link:hover::before{height:100%}
+        .social-link:hover{background:${BD}25;border-color:${B}40;padding-left:38px}
+        .social-icon{width:44px;height:44px;border-radius:50%;background:${B}30;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.3s,transform 0.3s}
+        .social-link:hover .social-icon{background:${B}55;transform:scale(1.1)}
+        .social-arrow{color:${MU};font-size:16px;transition:transform 0.3s,color 0.3s}
+        .social-link:hover .social-arrow{transform:translateX(6px);color:${GOLD}}
+
+        .scroll-line{width:1px;height:36px;background:linear-gradient(to bottom,${GOLD}60,transparent);animation:scrollPulse 2.4s ease-in-out infinite}
+        @keyframes scrollPulse{0%,100%{opacity:0.4;transform:scaleY(1)}50%{opacity:1;transform:scaleY(1.4)}}
+
+        /* ═══════ ECINNI COSMIC PAGE ═══════ */
+        .cosmos-bg{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+        .starfield-bg{position:absolute;inset:0}
+        .star-bg{position:absolute;border-radius:50%;background:#fff;animation:twinkle var(--dur,3s) ease-in-out infinite alternate}
+        @keyframes twinkle{0%{opacity:0.05;transform:scale(0.6)}100%{opacity:var(--max-o,0.7);transform:scale(1.4)}}
+        .nebula{position:absolute;border-radius:50%;filter:blur(80px);mix-blend-mode:screen;transition:transform 0.6s ease-out}
+        .nebula-burgundy{width:700px;height:700px;background:radial-gradient(circle,${B}33,transparent 70%);top:-10%;right:-15%;animation:drift 25s ease-in-out infinite alternate}
+        .nebula-gold{width:600px;height:600px;background:radial-gradient(circle,${GOLD}1f,transparent 70%);bottom:-10%;left:-10%;animation:drift 30s ease-in-out infinite alternate-reverse}
+        .nebula-deep{width:500px;height:500px;background:radial-gradient(circle,${BD}55,transparent 70%);top:40%;left:50%;animation:drift 35s ease-in-out infinite alternate}
+        @keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(80px,-60px) scale(1.15)}}
+
+        .orbit-stage{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(900px,95vw);height:min(900px,95vw);pointer-events:none}
+        .orbit{position:absolute;top:50%;left:50%;border-radius:50%;border:1px solid ${GOLD}20;transform:translate(-50%,-50%)}
+        .orbit-1{width:100%;height:100%;animation:spin 60s linear infinite}
+        .orbit-2{width:75%;height:75%;border-color:${GOLD}28;animation:spin 45s linear infinite reverse}
+        .orbit-3{width:50%;height:50%;border-color:${GOLD}14;animation:spin 30s linear infinite}
+        .orbit-1::before,.orbit-2::before,.orbit-3::before{content:'';position:absolute;width:6px;height:6px;background:${GOLD};border-radius:50%;box-shadow:0 0 20px ${GOLD}}
+        .orbit-1::before{top:-3px;left:30%}
+        .orbit-2::before{bottom:-3px;right:25%;background:${B};box-shadow:0 0 20px ${B}}
+        .orbit-3::before{top:50%;left:-3px}
+        @keyframes spin{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+
+        .ec-kicker{display:flex;align-items:center;gap:20px;justify-content:center;position:relative;z-index:2}
+        .kicker-line{width:60px;height:1px;background:linear-gradient(90deg,transparent,${GOLD})}
+        .kicker-line.right{background:linear-gradient(90deg,${GOLD},transparent)}
+
+        .ec-title{font-family:${F};font-style:italic;font-weight:700;font-size:clamp(80px,18vw,200px);line-height:0.85;letter-spacing:-0.02em;text-align:center;position:relative;z-index:2;margin:0}
+        .ec-title-bg{background:linear-gradient(180deg,${CR} 0%,${GOLD_LIGHT} 60%,${GOLD} 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 80px ${GOLD}30);position:relative;display:inline-block}
+        .title-accent{position:absolute;color:${GOLD};font-size:0.2em;font-style:normal;-webkit-text-fill-color:${GOLD};animation:pulse 3s ease-in-out infinite}
+        .title-accent.left{top:20%;left:-8%}
+        .title-accent.right{bottom:25%;right:-8%;animation-delay:1.5s}
+        @keyframes pulse{0%,100%{opacity:0.4;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
+
+        .ec-ornament{display:flex;align-items:center;justify-content:center;gap:30px;padding:60px 20px;max-width:600px;margin:0 auto}
+        .div-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,${GOLD}33,transparent)}
+        .div-mark{font-family:${F};color:${GOLD};font-size:24px;letter-spacing:8px}
+
+        .ec-section{padding:80px 20px;max-width:1100px;margin:0 auto}
+        .ec-eyebrow{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:60px}
+        .eb-num{font-family:${F};font-style:italic;font-size:16px;color:${GOLD};letter-spacing:4px}
+        .eb-line{width:40px;height:1px;background:${GOLD}}
+        .eb-text{font-family:${F};font-size:12px;letter-spacing:8px;color:${CR}}
+
+        .syn-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start}
+        .syn-block{font-family:${F};font-size:clamp(17px,1.6vw,19px);line-height:1.95;color:${CR}aa}
+        .syn-block p{margin-bottom:1.5em}
+        .syn-block p:last-child{margin-bottom:0}
+        .dropcap::first-letter{font-family:${F};font-style:italic;font-size:4em;color:${GOLD};float:left;line-height:0.85;margin:0.05em 0.1em 0 0;font-weight:700}
+        .hl{color:${GOLD_LIGHT};font-style:italic;font-weight:500}
+
+        .ec-cosmic{padding:100px 20px}
+        .cosmic-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+        .planet-stage{position:relative;aspect-ratio:1;display:flex;align-items:center;justify-content:center}
+        .planet{width:70%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 30% 30%,${GOLD_LIGHT} 0%,${GOLD} 30%,${GOLD_DEEP} 60%,${BD} 100%);box-shadow:inset -30px -30px 80px rgba(0,0,0,0.5),0 0 100px ${GOLD}30,0 0 200px ${GOLD}15;position:relative;animation:planetSpin 40s linear infinite}
+        .planet::before{content:'';position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 70% 70%,transparent 50%,rgba(0,0,0,0.4) 100%)}
+        @keyframes planetSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+        .planet-orbit{position:absolute;inset:-10%;border:1px dashed ${GOLD}40;border-radius:50%;animation:planetSpin 25s linear infinite}
+        .planet-orbit::before{content:'';position:absolute;width:12px;height:12px;background:${CR};border-radius:50%;top:-6px;left:50%;box-shadow:0 0 20px ${CR}}
+        .planet-label{position:absolute;bottom:-30px;left:50%;transform:translateX(-50%);font-family:${F};font-style:italic;font-size:14px;letter-spacing:6px;color:${GOLD};white-space:nowrap}
+        .cosmic-text h2{font-family:${F};font-style:italic;font-weight:600;font-size:clamp(28px,4vw,42px);line-height:1.2;color:${CR};margin-bottom:24px}
+        .cosmic-text h2 em{color:${GOLD};font-style:italic}
+        .cosmic-text p{font-family:${F};font-size:clamp(17px,1.5vw,19px);line-height:1.85;color:${CR}aa;margin-bottom:1.2em}
+        .cosmic-list{list-style:none;margin-top:30px}
+        .cosmic-list li{font-family:${F};font-style:italic;font-size:17px;color:${CR};padding:14px 0;border-top:1px solid ${GOLD}25;display:flex;align-items:center;gap:16px;transition:padding-left 0.4s,color 0.4s}
+        .cosmic-list li:hover{padding-left:10px;color:${GOLD_LIGHT}}
+        .cosmic-list li:last-child{border-bottom:1px solid ${GOLD}25}
+        .cosmic-list li::before{content:'◇';color:${GOLD};font-size:0.7em}
+
+        .char-row{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:50px}
+        .char{text-align:center;padding:30px 16px;transition:all 0.6s cubic-bezier(0.16,1,0.3,1)}
+        .char-icon-wrap{width:90px;height:90px;margin:0 auto 30px;display:flex;align-items:center;justify-content:center;position:relative;border-radius:50%;border:1px solid ${GOLD}33;transition:all 0.5s ease}
+        .char-icon-wrap::before{content:'';position:absolute;inset:-10px;border-radius:50%;border:1px solid ${GOLD}15;transition:all 0.5s ease}
+        .char:hover .char-icon-wrap{border-color:${GOLD};box-shadow:0 0 30px ${GOLD}30}
+        .char:hover .char-icon-wrap::before{inset:-16px;border-color:${GOLD}33}
+        .char-icon-wrap svg{width:38px;height:38px;stroke:${GOLD};fill:none;stroke-width:1.2;transition:all 0.5s ease}
+        .char:hover .char-icon-wrap svg{stroke:${GOLD_LIGHT};transform:scale(1.1)}
+        .char-name{font-family:${F};font-style:italic;font-weight:700;font-size:28px;color:${CR};margin-bottom:8px;letter-spacing:1px}
+        .char-role{font-family:${F};font-size:11px;letter-spacing:5px;color:${GOLD};margin-bottom:18px}
+        .char-desc{font-family:${F};font-style:italic;font-size:16px;line-height:1.7;color:${CR}aa;max-width:280px;margin:0 auto}
+
+        .themes-grid{display:flex;justify-content:center;flex-wrap:wrap;max-width:900px;margin:0 auto;border-top:1px solid ${GOLD}25;border-left:1px solid ${GOLD}25}
+        .theme-cell-ec{flex:1 0 33.333%;min-width:200px;padding:30px 20px;border-right:1px solid ${GOLD}25;border-bottom:1px solid ${GOLD}25;font-family:${F};font-style:italic;font-size:18px;color:${CR};transition:all 0.4s ease}
+        .theme-cell-ec:hover{background:${GOLD}10;color:${GOLD_LIGHT}}
+        .theme-cell-ec .num{display:block;font-family:${F};font-size:11px;color:${GOLD};letter-spacing:3px;margin-bottom:6px;font-style:normal}
+
+        .ec-quote{padding:120px 20px;text-align:center;position:relative}
+        .ec-quote-stage{max-width:800px;margin:0 auto;position:relative}
+        .ec-quote-mark{font-family:${F};font-style:italic;font-size:180px;line-height:0.8;color:${GOLD};opacity:0.2;position:absolute;top:-40px;left:50%;transform:translateX(-50%)}
+        .ec-quote-body{font-family:${F};font-style:italic;font-size:clamp(24px,3.5vw,38px);line-height:1.5;color:${CR};position:relative;z-index:2}
+        .ec-quote-body em{color:${GOLD_LIGHT};font-style:italic}
+        .ec-quote-attr{margin-top:40px;font-family:${F};font-size:13px;letter-spacing:6px;color:${GOLD}}
+
+        .ec-finale{padding:80px 20px 60px;text-align:center}
+        .finale-frame{max-width:700px;margin:0 auto;padding:80px 40px;position:relative}
+        .finale-frame::before,.finale-frame::after{content:'';position:absolute;width:40px;height:40px;border:1px solid ${GOLD}}
+        .finale-frame::before{top:0;left:0;border-right:none;border-bottom:none}
+        .finale-frame::after{bottom:0;right:0;border-left:none;border-top:none}
+        .finale-frame .finale-corner-tr,.finale-frame .finale-corner-bl{position:absolute;width:40px;height:40px;border:1px solid ${GOLD}}
+        .finale-author{font-family:${F};font-style:italic;font-size:clamp(20px,2.5vw,26px);letter-spacing:8px;color:${CR};margin-bottom:24px}
+        .finale-title{font-family:${F};font-style:italic;font-weight:900;font-size:clamp(56px,9vw,96px);line-height:0.9;background:linear-gradient(180deg,${CR},${GOLD});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:24px;filter:drop-shadow(0 0 60px ${GOLD}30)}
+        .finale-tag{font-family:${F};font-size:13px;letter-spacing:6px;color:${GOLD};margin-bottom:50px}
+        .finale-cta{display:inline-flex;align-items:center;gap:14px;font-family:${F};font-size:14px;letter-spacing:5px;color:${CR};background:transparent;border:1px solid ${GOLD};padding:18px 40px;text-decoration:none;cursor:pointer;transition:all 0.4s ease;position:relative;overflow:hidden}
+        .finale-cta::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,${GOLD}33,transparent);transition:left 0.6s ease}
+        .finale-cta:hover::before{left:100%}
+        .finale-cta:hover{background:${GOLD}10;color:${GOLD_LIGHT};letter-spacing:6px}
+        .finale-cta-arrow{display:inline-block;transition:transform 0.4s ease}
+        .finale-cta:hover .finale-cta-arrow{transform:translateX(6px)}
+
+        @media(max-width:900px){
+          .syn-grid,.cosmic-inner{grid-template-columns:1fr;gap:50px}
+          .planet-stage{max-width:300px;margin:0 auto}
+          .char-row{grid-template-columns:1fr;gap:30px}
+        }
+        @media(max-width:600px){
+          .theme-cell-ec{flex:1 0 50%;min-width:0;font-size:15px;padding:22px 12px}
+          .finale-frame{padding:50px 24px}
+          .ec-quote-mark{font-size:120px}
+        }
+        @media(max-width:768px){
+          .desktop-nav{display:none!important}
+          .mobile-menu-btn{display:flex!important}
+        }
+        @media(min-width:769px){
+          .mobile-menu-btn{display:none!important}
+        }
+      `}</style>
+      <TexturedBg />
+      <ScrollProgress />
+      <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
+      <div key={pageKey} className="page-anim">{renderPage()}</div>
+      <Footer />
+    </>
+  );
+}
