@@ -111,8 +111,8 @@ function Fleuron({ size = 14, color = GOLD }) {
 
 function Signature({ visible }) {
   return (
-    <div style={{ position: "relative", display: "inline-block", marginTop: 16, marginBottom: 4, overflow: "hidden", width: visible ? 540 : 0, maxWidth: "100%", transition: "width 2.4s cubic-bezier(0.65,0,0.35,1)" }}>
-      <span style={{ fontFamily: FS, fontSize: "clamp(78px, 12vw, 124px)", color: GOLD_LIGHT, whiteSpace: "nowrap", display: "inline-block", lineHeight: 1.3, textShadow: `0 1px 0 ${GOLD}30`, letterSpacing: 1 }}>Cem Savran</span>
+    <div style={{ position: "relative", display: "inline-block", marginTop: 16, marginBottom: 4, maxWidth: "100%", clipPath: visible ? "inset(0 -2% 0 0)" : "inset(0 100% 0 0)", transition: "clip-path 2.4s cubic-bezier(0.65,0,0.35,1)" }}>
+      <span style={{ fontFamily: FS, fontSize: "clamp(78px, 12vw, 124px)", color: GOLD_LIGHT, whiteSpace: "nowrap", display: "inline-block", lineHeight: 1.4, textShadow: `0 1px 0 ${GOLD}30`, letterSpacing: 1, padding: "0.05em 0.18em 0.18em 0" }}>Cem Savran</span>
     </div>
   );
 }
@@ -679,7 +679,7 @@ function BookDetailPage({ book, setCurrentPage }) {
         <div ref={rQ} className="quote-block" style={{ opacity: vQ?1:0, transform: vQ?"translateX(0)":"translateX(-20px)", transition: "all 0.8s ease" }}>
           <span className="quote-mark">"</span>
           <p style={{ fontFamily: F, fontSize: 22, color: CR, fontStyle: "italic", lineHeight: 2, position: "relative", zIndex: 2 }}>{book.quote}</p>
-          <p style={{ fontFamily: F, fontSize: 14, color: GOLD, marginTop: 22, letterSpacing: 2 }}>— Cem Savran</p>
+          <p style={{ fontFamily: F, fontSize: 14, color: GOLD, marginTop: 22, letterSpacing: 2 }}>— {book.quoteAttr || "Cem Savran"}</p>
         </div>
       </div>
     </section>
@@ -926,8 +926,8 @@ function App() {
         .kicker-line{width:60px;height:1px;background:linear-gradient(90deg,transparent,${GOLD})}
         .kicker-line.right{background:linear-gradient(90deg,${GOLD},transparent)}
 
-        .ec-title{font-family:${F};font-style:italic;font-weight:700;font-size:clamp(80px,18vw,200px);line-height:1.05;letter-spacing:-0.02em;text-align:center;position:relative;z-index:2;margin:0;padding:0.18em 0.05em 0.05em}
-        .ec-title-bg{background:linear-gradient(180deg,${CR} 0%,${GOLD_LIGHT} 60%,${GOLD} 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 80px ${GOLD}30);position:relative;display:inline-block;padding:0.05em 0}
+        .ec-title{font-family:${F};font-style:italic;font-weight:700;font-size:clamp(80px,18vw,200px);line-height:1.2;letter-spacing:-0.01em;text-align:center;position:relative;z-index:2;margin:0;padding:0.32em 0.08em 0.08em;overflow:visible}
+        .ec-title-bg{background:linear-gradient(180deg,${CR} 0%,${GOLD_LIGHT} 60%,${GOLD} 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 80px ${GOLD}30);position:relative;display:inline-block;padding:0.1em 0.05em;overflow:visible;line-height:1.2}
         .title-accent{position:absolute;color:${GOLD};font-size:0.2em;font-style:normal;-webkit-text-fill-color:${GOLD};animation:pulse 3s ease-in-out infinite}
         .title-accent.left{top:20%;left:-8%}
         .title-accent.right{bottom:25%;right:-8%;animation-delay:1.5s}
@@ -999,7 +999,7 @@ function App() {
         .finale-frame::after{bottom:0;right:0;border-left:none;border-top:none}
         .finale-frame .finale-corner-tr,.finale-frame .finale-corner-bl{position:absolute;width:40px;height:40px;border:1px solid ${GOLD}}
         .finale-author{font-family:${F};font-style:italic;font-size:clamp(20px,2.5vw,26px);letter-spacing:8px;color:${CR};margin-bottom:24px}
-        .finale-title{font-family:${F};font-style:italic;font-weight:900;font-size:clamp(56px,9vw,96px);line-height:1.1;background:linear-gradient(180deg,${CR},${GOLD});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:24px;filter:drop-shadow(0 0 60px ${GOLD}30);padding:0.18em 0.05em 0.05em}
+        .finale-title{font-family:${F};font-style:italic;font-weight:900;font-size:clamp(56px,9vw,96px);line-height:1.25;background:linear-gradient(180deg,${CR},${GOLD});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:24px;filter:drop-shadow(0 0 60px ${GOLD}30);padding:0.32em 0.08em 0.08em;overflow:visible}
         .finale-tag{font-family:${F};font-size:13px;letter-spacing:6px;color:${GOLD};margin-bottom:50px}
         .finale-cta{display:inline-flex;align-items:center;gap:14px;font-family:${F};font-size:14px;letter-spacing:5px;color:${CR};background:transparent;border:1px solid ${GOLD};padding:18px 40px;text-decoration:none;cursor:pointer;transition:all 0.4s ease;position:relative;overflow:hidden}
         .finale-cta::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,${GOLD}33,transparent);transition:left 0.6s ease}
