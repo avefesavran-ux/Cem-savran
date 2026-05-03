@@ -152,14 +152,14 @@ const books = [
     quote: "Nesneler her yerden 'beni de yaz' diye bağrışıyor.",
     detail: { icon: "☽", accent: "Ankara · 1990'lar · Promete Dergisi", atmosphere: "Bir matbaa mürekkebi kokusu, bir PTT çukuru, konuşan nesneler ve şiir militanının karanlıkta parlayan kalemi..." }
   },
-  { id: "av", title: "Av", type: "Roman", year: "2024", letter: "A", number: "II",
+  { id: "av", title: "Av", type: "Roman", year: "2020", letter: "A", number: "II",
     tagline: "Yeraltından öteki notlar — avken avcı, avcıyken av",
     description: "Cem Savran'ın ilk romanı Av, Antalya falezlerinin gölgesinde geçen, katmanlı bir anlatı yapısı içinde sarsıcı bir duygusal derinlik sunuyor. Çerçeve anlatı tekniğini ustalıkla kullanan yazar, romanı iç içe geçmiş üç zaman dilimiyle kurgulamış. 12 Eylül darbesinin gölgesinde bir gencin varoluş mücadelesi, doğayla kurulan derin bağ ve av-avcı döngüsünün metaforik zenginliğiyle örülüyor. Dostoyevski'nin Yeraltından Notlar'ına selam gönderen roman, şiirsel betimlemelerin yapısal unsurlara dönüştüğü özgün bir eser.",
     themes: ["Varoluş", "Doğa", "Direniş", "Tarihsel Bellek"],
     quote: "İnsan avken avcıya, avcıyken ava dönüşebiliyor.",
     detail: { icon: "◈", accent: "Antalya · Falezler · Deniz", atmosphere: "Tuzlu rüzgâr, falez kayalıklarının altındaki mağara, bir sahafın elinden düşen ajanda ve zamansız bir günlük..." }
   },
-  { id: "metal-kelebek", title: "Metal Kelebek", type: "Şiir", year: "2024", letter: "M", number: "I",
+  { id: "metal-kelebek", title: "Metal Kelebek", type: "Şiir", year: "2019", letter: "M", number: "I",
     tagline: "Otuz üç şiirde çelikten kanatlarla toplumsal tanıklık",
     description: "Metal Kelebek, Cem Savran'ın olgunluk döneminin en somut şiir çalışması. Otuz üç şiiri bir araya getiren kitap, toplumcu bir damarın lirik izdüşümü olarak okunabilir. Modern çağın ruhsuzlaşan kentlerine yöneltilen eleştirel tavır, kitabın temel direklerinden birini oluşturuyor. Dizeler, başladığı yerle bittiği menzili iyi bilen bir berraklığa sahip.",
     themes: ["Toplumsal Eleştiri", "Kent", "Modernite", "Direniş"],
@@ -210,7 +210,7 @@ function Navbar({ currentPage, setCurrentPage }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => { const h = () => setScrolled(window.scrollY > 30); window.addEventListener("scroll", h); return () => window.removeEventListener("scroll", h); }, []);
-  const links = [{ id: "home", label: "Ana Sayfa" }, { id: "about", label: "Hakkında" }, { id: "books", label: "Eserler" }, { id: "blog", label: "Blog" }, { id: "contact", label: "İletişim" }];
+  const links = [{ id: "home", label: "Ana Sayfa" }, { id: "about", label: "Hakkında" }, { id: "books", label: "Yapıtlar" }, { id: "blog", label: "Blog" }, { id: "contact", label: "İletişim" }];
   const go = (id) => { setCurrentPage(id); setMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); };
   return (
     <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, background: scrolled ? "rgba(5,5,5,0.94)" : "transparent", backdropFilter: scrolled ? "blur(14px)" : "none", borderBottom: scrolled ? `1px solid ${B}22` : "1px solid transparent", transition: "all 0.5s", padding: "0 32px" }}>
@@ -292,7 +292,7 @@ function HeroSection({ setCurrentPage }) {
         </div>
         <div style={{ display: "flex", gap: 20, flexWrap: "wrap", opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(20px)", transition: "all 1s ease 1.5s" }}>
           <MagButton onClick={() => { setCurrentPage("books"); window.scrollTo(0,0); }}
-            style={{ background: B, color: CR, border: `1px solid ${B}`, padding: "16px 44px", fontFamily: F, fontSize: 15, letterSpacing: 3, cursor: "pointer" }}>Eserleri Keşfet</MagButton>
+            style={{ background: B, color: CR, border: `1px solid ${B}`, padding: "16px 44px", fontFamily: F, fontSize: 15, letterSpacing: 3, cursor: "pointer" }}>Yapıtları Keşfet</MagButton>
           <MagButton onClick={() => { setCurrentPage("about"); window.scrollTo(0,0); }}
             style={{ background: "transparent", color: MU, border: `1px solid ${MU}40`, padding: "16px 44px", fontFamily: F, fontSize: 15, letterSpacing: 3, cursor: "pointer" }}>Özgeçmiş</MagButton>
         </div>
@@ -388,7 +388,7 @@ function BooksPage({ setCurrentPage, setSelectedBook }) {
       <div style={{ maxWidth: 1000, margin: "0 auto", padding: "0 32px 110px", position: "relative", zIndex: 3 }}>
         <header ref={rH} style={{ marginBottom: 72, opacity: vH?1:0, transform: vH?"translateY(0)":"translateY(40px)", transition: "all 1s ease" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}><Fleuron /><p style={{ fontFamily: F, fontSize: 13, color: GOLD, letterSpacing: 4 }}>Eserler</p></div>
-          <h2 className="ptitle">Portföy</h2>
+          <h2 className="ptitle">Yapıtlar</h2>
           <LineDraw width={70} visible={vH} delay={0.3} />
         </header>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 2 }}>
@@ -615,7 +615,7 @@ function EcinniDetailPage({ setCurrentPage }) {
         <section ref={rF} className="ec-finale" style={{ opacity: vF?1:0, transform: vF?"translateY(0)":"translateY(40px)", transition: "all 1s ease" }}>
           <div className="finale-frame">
             <div className="finale-author">cem savran</div>
-            <h2 className="finale-title">ecinni</h2>
+            <h2 className="finale-title">eEcinni</h2>
             <div className="finale-tag">— ROMAN —</div>
             <a className="finale-cta" href="https://www.kitapyurdu.com/yazar/cem-savran/225641.html" target="_blank" rel="noopener">
               <span>Kitabı Edin</span>
